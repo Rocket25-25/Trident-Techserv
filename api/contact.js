@@ -1,4 +1,4 @@
-/* Contact page form. Uses the shared helper in js/lead-form.js and posts to contact-handler.php (Gmail SMTP).
+/* Contact page form. Uses the shared helper in js/lead-form.js and posts via TridentLead (PHP locally, /api/contact on Vercel).
    On success a pop-up is shown and the form stays on the page (cleared, ready for another message). */
 (function () {
   var form = document.getElementById('contactForm');
