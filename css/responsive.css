@@ -1,0 +1,47 @@
+@media (max-width:1100px){
+  .grid--4{grid-template-columns:repeat(2,1fr)}
+  .panel{grid-template-columns:1fr 1fr}.panel figure{grid-column:1/-1}
+  .footer__grid{grid-template-columns:repeat(3,1fr)}.footer__brand{grid-column:1/-1}
+}
+@media (max-width:900px){
+  .hero__video{object-position:68% 50%;opacity:.65}
+  .hero__shade{background:linear-gradient(180deg,rgba(var(--shade),.25) 0,rgba(var(--shade),.6) 40%,rgba(var(--shade),.92) 70%,var(--bg) 100%)}
+  .chip{display:none}
+  .case{grid-template-columns:1fr;gap:24px}.case:nth-of-type(even) .case__media{order:0}
+  .header__menu{display:grid}
+  .header__nav{position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;padding:8px 24px 20px;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .3s,transform .3s,visibility .3s}
+  .header__nav.is-open{opacity:1;visibility:visible;transform:none}
+  .header__nav a{padding:14px 0;border-bottom:1px solid var(--line)}.header__nav a::after{display:none}
+  .header__menu[aria-expanded="true"] .i-open{display:none}.header__menu[aria-expanded="true"] .i-close{display:block}
+  .steps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .step{flex:0 0 132px;scroll-snap-align:start}
+}
+@media (max-width:640px){
+  .container{width:calc(100% - 32px)}
+  .header__cta{padding:9px 14px;font-size:13px;white-space:nowrap}
+  .grid--4,.panel{grid-template-columns:1fr}.panel{padding:20px}
+  .hero__actions .btn{width:100%}
+  .footer__grid{grid-template-columns:1fr 1fr}.footer__bottom{flex-direction:column;align-items:flex-start}
+  .modal__box{padding:24px}.stats{gap:20px}
+}
+@media (max-width:400px){.footer__grid{grid-template-columns:1fr}.header__inner{gap:8px}.header__logo img{height:30px}.header__cta{padding:8px 9px;font-size:12px}.header__logo img{height:26px}}
+
+/* Mobile polish: touch-sized targets, readable labels, lighter effects, compact footer */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+a,button{-webkit-tap-highlight-color:transparent}
+@media (max-width:900px){
+  .section,.cta{overflow-x:clip}
+  .header__logo{display:inline-flex;align-items:center;min-height:44px}
+  .header__cta{min-height:40px}
+  .footer__grid a{display:flex;align-items:center;min-height:40px}
+  .link{display:inline-flex;align-items:center;min-height:44px}
+  .footer__top{display:inline-flex;align-items:center;min-height:44px}
+}
+@media (max-width:640px){
+  .kicker,.pill,.step__num,.pillar__tags span,.cc__id,.cc__cap{font-size:12px}
+  .footer__grid{grid-template-columns:1fr 1fr;gap:4px 16px}
+  .footer__brand,.footer__grid>:nth-child(4),.footer__grid>:nth-child(5){grid-column:1/-1}
+  .footer__grid>:nth-child(4),.footer__grid>:nth-child(5){margin-top:14px}
+  .cc__mod{-webkit-backdrop-filter:none;backdrop-filter:none}
+  [data-theme="dark"] .cc__mod{background:rgba(9,20,34,.92)}
+}

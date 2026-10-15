@@ -1,0 +1,120 @@
+/* ==========================================================================
+   Trident Techserv: futuristic phone view  (phones and small tablets, 900px and below)
+   Neon glow, aurora light, scan lines, sheen, flowing gradients, floating "Start a project" button.
+   No zooming or popping: only light, colour and soft movement. Respects "reduce motion".
+   Needs js/mobile-fx.js (adds the aurora, grid, scan line, floating button and tap ripple).
+   ========================================================================== */
+.fx-aurora,.fx-dock{display:none}
+@media (max-width:900px){
+:root{--fx-a:#00d4ff;--fx-b:#5b7cff;--fx-c:#a56bff;--fx-glow:0,212,255}
+:root:not([data-theme="dark"]){--fx-a:#0879ed;--fx-b:#4f6bff;--fx-c:#8b5bff;--fx-glow:8,121,237}
+
+/* ---------- HERO: aurora + grid + scan line ---------- */
+.hero{overflow:hidden}
+.hero__inner{position:relative;z-index:3}
+.fx-aurora{display:block;position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.fx-aurora i{position:absolute;border-radius:50%;filter:blur(40px);opacity:.85;mix-blend-mode:screen;will-change:transform}
+.fx-aurora i:nth-child(1){width:62vw;height:62vw;left:-18vw;top:-8vw;background:radial-gradient(circle,rgba(var(--fx-glow),.75),transparent 70%)}
+.fx-aurora i:nth-child(2){width:70vw;height:70vw;right:-26vw;top:30%;background:radial-gradient(circle,rgba(125,90,255,.65),transparent 70%)}
+.fx-aurora i:nth-child(3){width:54vw;height:54vw;left:12vw;bottom:-16vw;background:radial-gradient(circle,rgba(0,140,255,.6),transparent 70%)}
+.fx-grid{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.8;
+  background-image:linear-gradient(rgba(var(--fx-glow),.22) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--fx-glow),.22) 1px,transparent 1px);
+  background-size:38px 38px;-webkit-mask-image:radial-gradient(120% 70% at 50% 35%,#000 20%,transparent 75%);mask-image:radial-gradient(120% 70% at 50% 35%,#000 20%,transparent 75%)}
+.fx-scan{position:absolute;left:0;right:0;top:0;height:2px;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--fx-a) 50%,transparent);box-shadow:0 0 18px 2px rgba(var(--fx-glow),.7);opacity:.85}
+.fx-dock{display:flex}
+
+/* ---------- headings: light shimmer + kicker sheen ---------- */
+.section__head h2,.hero h1{position:relative}
+.kicker{position:relative;overflow:hidden}
+.kicker::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-130%);pointer-events:none}
+.kicker .dot{box-shadow:0 0 8px rgba(var(--fx-glow),.9)}
+
+/* ---------- buttons: flowing gradient, glow, sheen ---------- */
+.btn{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.btn--primary{background-image:linear-gradient(100deg,#0a6cff,#00b9e9 45%,#5b7cff 80%,#0a6cff);background-size:220% 100%;
+  box-shadow:0 12px 30px -10px rgba(var(--fx-glow),.85),inset 0 1px 0 rgba(255,255,255,.3);border-color:transparent}
+.btn--primary::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);pointer-events:none}
+.hero .btn--ghost{box-shadow:inset 0 0 0 1px rgba(var(--fx-glow),.55),0 0 22px -8px rgba(var(--fx-glow),.7)}
+.fx-ripple{position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.65),rgba(var(--fx-glow),.25) 55%,transparent 70%);transform:translate(-50%,-50%) scale(0);opacity:.9}
+
+/* ---------- Standards cards: neon glow ---------- */
+.se .se__card.cc__mod{box-shadow:0 18px 40px -24px rgba(0,0,0,.85),0 0 0 1px rgba(var(--fx-glow),.25),0 0 22px -10px rgba(var(--fx-glow),.55)}
+
+/* ---------- products (pillars): glossy sheen + glowing chips ---------- */
+#pillars .pillars .pillar__img{position:relative;box-shadow:0 0 0 1px rgba(var(--fx-glow),.3),0 22px 44px -22px rgba(var(--fx-glow),.6)!important}
+#pillars .pillars .pillar__img::after{display:block!important;content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.26) 50%,transparent 64%);transform:translateX(-135%)}
+#pillars .pillars .pillar__tags span{box-shadow:0 0 0 1px rgba(var(--fx-glow),.28)}
+
+/* ---------- case studies and about picture: neon frame + scan line ---------- */
+.frame{position:relative;border-color:rgba(var(--fx-glow),.4)!important;box-shadow:0 0 0 1px rgba(var(--fx-glow),.18),0 22px 46px -24px rgba(var(--fx-glow),.6)!important}
+.frame::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;z-index:3;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--fx-a) 50%,transparent);box-shadow:0 0 14px 1px rgba(var(--fx-glow),.8);opacity:.9}
+
+/* ---------- process: active step ping + glowing panel ---------- */
+.step.is-active .step__dot{box-shadow:0 0 0 0 rgba(var(--fx-glow),.7),0 0 12px rgba(var(--fx-glow),.8)}
+#process .panel{box-shadow:0 0 0 1px rgba(var(--fx-glow),.3),0 26px 50px -26px rgba(var(--fx-glow),.55)}
+
+/* ---------- call to action + footer ---------- */
+.cta__panel{position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(var(--fx-glow),.35),0 26px 60px -26px rgba(var(--fx-glow),.7)}
+.cta__panel::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.12) 50%,transparent 62%);transform:translateX(-135%);pointer-events:none}
+.footer{position:relative}
+.footer::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--fx-a),var(--fx-b),var(--fx-c),transparent);background-size:200% 100%}
+
+/* ---------- floating "Start a project" button ---------- */
+.fx-dock{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:45;align-items:center;gap:10px;
+  padding:13px 22px;border:0;border-radius:999px;color:#fff;font:600 15px/1 'Inter',sans-serif;letter-spacing:.01em;cursor:pointer;overflow:hidden;
+  background:linear-gradient(100deg,#0a6cff,#00b9e9 55%,#5b7cff);background-size:220% 100%;
+  box-shadow:0 14px 34px -10px rgba(var(--fx-glow),.9),0 0 0 1px rgba(255,255,255,.22) inset;
+  transform:translate(-50%,160%);opacity:0;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .4s;-webkit-tap-highlight-color:transparent}
+.fx-dock.is-on{transform:translate(-50%,0);opacity:1}
+.fx-dock b{font-weight:700;display:inline-block}
+.fx-dock::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);transform:translateX(-130%);pointer-events:none}
+body{padding-bottom:0}
+
+/* ---------- the motion (only when the phone allows motion) ---------- */
+@media (prefers-reduced-motion:no-preference){
+  @keyframes fxDrift1{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(14vw,8vw,0)}}
+  @keyframes fxDrift2{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-16vw,-10vw,0)}}
+  @keyframes fxDrift3{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10vw,-9vw,0)}}
+  @keyframes fxGrid{to{background-position:38px 38px,38px 38px}}
+  @keyframes fxScan{0%{top:-2%;opacity:0}8%{opacity:.9}92%{opacity:.9}100%{top:102%;opacity:0}}
+  @keyframes fxScanBox{0%{top:0;opacity:0}10%{opacity:.9}90%{opacity:.9}100%{top:100%;opacity:0}}
+  @keyframes fxSheen{0%,55%{transform:translateX(-135%)}100%{transform:translateX(135%)}}
+  @keyframes fxFlow{to{background-position:220% 0}}
+  @keyframes fxText{0%{background-position:120% 0}100%{background-position:-120% 0}}
+  @keyframes fxPing{0%{box-shadow:0 0 0 0 rgba(var(--fx-glow),.7),0 0 12px rgba(var(--fx-glow),.8)}80%,100%{box-shadow:0 0 0 12px rgba(var(--fx-glow),0),0 0 12px rgba(var(--fx-glow),.8)}}
+  @keyframes fxDot{0%{box-shadow:0 0 0 0 rgba(var(--fx-glow),.7)}80%,100%{box-shadow:0 0 0 9px rgba(var(--fx-glow),0)}}
+  @keyframes fxGlow{0%,100%{box-shadow:0 18px 40px -24px rgba(0,0,0,.85),0 0 0 1px rgba(var(--fx-glow),.22),0 0 18px -10px rgba(var(--fx-glow),.4)}
+    50%{box-shadow:0 18px 40px -24px rgba(0,0,0,.85),0 0 0 1px rgba(var(--fx-glow),.6),0 0 34px -6px rgba(var(--fx-glow),.8)}}
+  @keyframes fxBtn{0%,100%{box-shadow:0 12px 30px -12px rgba(var(--fx-glow),.6),inset 0 1px 0 rgba(255,255,255,.3)}50%{box-shadow:0 14px 38px -8px rgba(var(--fx-glow),1),inset 0 1px 0 rgba(255,255,255,.3)}}
+  @keyframes fxRipple{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+  @keyframes fxChip{0%,100%{box-shadow:0 0 0 1px rgba(var(--fx-glow),.22)}50%{box-shadow:0 0 0 1px rgba(var(--fx-glow),.6),0 0 14px -2px rgba(var(--fx-glow),.55)}}
+
+  .fx-aurora i:nth-child(1){animation:fxDrift1 14s ease-in-out infinite}
+  .fx-aurora i:nth-child(2){animation:fxDrift2 18s ease-in-out infinite}
+  .fx-aurora i:nth-child(3){animation:fxDrift3 16s ease-in-out infinite}
+  .fx-grid{animation:fxGrid 9s linear infinite}
+  .fx-scan{animation:fxScan 7s linear infinite}
+  .kicker::after{animation:fxSheen 6s ease-in-out infinite}
+  .btn--primary,.fx-dock{animation:fxFlow 7s linear infinite}
+  .btn--primary{animation:fxFlow 7s linear infinite,fxBtn 3.2s ease-in-out infinite}
+  .fx-dock{animation:fxFlow 7s linear infinite}
+  .btn--primary::after,.fx-dock::after{animation:fxSheen 4.5s ease-in-out infinite}
+  .section__head h2{background-image:linear-gradient(100deg,currentColor 0 45%,var(--fx-a) 50%,currentColor 55% 100%);background-size:260% 100%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:inherit;animation:fxText 8s linear infinite}
+  html .reveal-ready .se .se__card.reveal.cc__mod,html .se .se__card.cc__mod{animation:fxGlow 5s ease-in-out infinite!important}
+  .se .se__card:nth-child(2){animation-delay:-1.2s!important}.se .se__card:nth-child(3){animation-delay:-2.4s!important}.se .se__card:nth-child(4){animation-delay:-3.6s!important}
+  #pillars .pillars .pillar__img::after{animation:fxSheen 6s ease-in-out infinite}
+  #pillars .pillars .pillar:nth-child(2) .pillar__img::after{animation-delay:-1.5s}
+  #pillars .pillars .pillar:nth-child(3) .pillar__img::after{animation-delay:-3s}
+  #pillars .pillars .pillar:nth-child(4) .pillar__img::after{animation-delay:-4.5s}
+  #pillars .pillars .pillar__tags span{animation:fxChip 4s ease-in-out infinite}
+  .frame::after{animation:fxScanBox 5s linear infinite}
+  .step.is-active .step__dot{animation:fxPing 2s ease-out infinite}
+  .cta__panel::after{animation:fxSheen 6s ease-in-out infinite}
+  .footer::before{animation:fxFlow 6s linear infinite}
+  .fx-ripple{animation:fxRipple .7s ease-out forwards}
+}
+}

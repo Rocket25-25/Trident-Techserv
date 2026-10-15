@@ -1,0 +1,200 @@
+/* ==========================================================================
+   Trident Techserv — premium motion layer
+   Loaded after style.css, before responsive.css. Only motion/interaction:
+   no colours, copy or layout are changed. Entrances use CSS keyframes
+   (from-state only) so they never fight hover transitions.
+   ========================================================================== */
+:root{
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --rv-dist:22px;      /* default reveal travel */
+  --case-shift:25px;   /* case-study sideways travel */
+  --case-lift:0px;
+}
+@media (max-width:900px){:root{--case-shift:0px;--case-lift:18px}}
+@media (max-width:640px){:root{--rv-dist:12px}}
+
+/* One shared entrance keyframe. Only the "from" state is declared; the end
+   state is the element's own computed style. */
+@keyframes rv{from{opacity:0;transform:translate3d(var(--rv-x,0px),var(--rv-y,var(--rv-dist)),0) scale(var(--rv-s,1))}}
+@keyframes line-in{from{transform:scaleX(0)}}
+
+/* ---------- 1. Hero ------------------------------------------------------ */
+.hero__bg{inset:-96px 0 0;transform-origin:62% 50%;translate:0 var(--hero-y,0px);
+  animation:hero-settle 2.6s var(--ease-out) backwards}
+@keyframes hero-settle{from{transform:scale(1.02)}}
+/* dark veil that lifts as the video appears (works with the existing shade) */
+.hero__bg::after{content:'';position:absolute;inset:0;pointer-events:none;background:var(--hero-bg);
+  animation:hero-veil 1.8s var(--ease) .1s forwards}
+@keyframes hero-veil{to{opacity:0}}
+/* very slow cinematic drift; scaled slightly so edges never show */
+.hero__video{transform:scale(1.035);animation:hero-drift 40s ease-in-out infinite alternate}
+@keyframes hero-drift{from{transform:scale(1.035) translate3d(-.9%,0,0)}to{transform:scale(1.035) translate3d(.9%,0,0)}}
+
+/* sequenced content entrance */
+.hero__copy>.kicker{--rv-y:12px;animation:rv 1s var(--ease-out) .1s backwards}
+.hero h1{--rv-y:30px;animation:rv 1.1s var(--ease-out) .2s backwards}
+.hero__sub{--rv-y:20px;animation:rv 1s var(--ease-out) .35s backwards}
+.hero__desc{--rv-y:18px;animation:rv 1s var(--ease-out) .45s backwards}
+.hero__actions{--rv-y:14px;animation:rv 1s var(--ease-out) .55s backwards}
+@keyframes chip-in{from{opacity:0}}
+@keyframes float{50%{transform:translateY(-6px)}}
+.chip--1{animation:chip-in 1.2s var(--ease) 1.1s backwards,float 7s ease-in-out 1.1s infinite}
+.chip--2{animation:chip-in 1.2s var(--ease) 1.3s backwards,float 8s ease-in-out -3s infinite}
+/* paused by premium.js while the hero is off-screen */
+.hero.is-offscreen .hero__video,.hero.is-offscreen .grad,.hero.is-offscreen .chip{animation-play-state:paused}
+
+/* ---------- 2. Gradient headline (dark): near-imperceptible drift --------- */
+[data-theme="dark"] .grad{
+  background:linear-gradient(100deg,#0a63d8 0%,#0879ed 28%,#00b9e9 50%,#0879ed 72%,#0a63d8 100%);
+  background-size:220% 100%;background-position:0% 50%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:grad-shift 16s ease-in-out infinite alternate}
+@keyframes grad-shift{to{background-position:100% 50%}}
+
+/* ---------- 3. Header ---------------------------------------------------- */
+.header{transition:box-shadow .45s var(--ease),border-color .45s var(--ease)}
+/* glass lives on a pseudo-element so it can fade instead of popping in */
+.header::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--hdr);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
+  opacity:0;transition:opacity .45s var(--ease)}
+.header.is-scrolled{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+.header.is-scrolled::before{opacity:1}
+[data-theme="dark"] .header.is-scrolled{border-color:rgba(255,255,255,.08);box-shadow:0 10px 30px -14px rgba(0,0,0,.65)}
+/* nav underline: grows left→right, leaves toward the right */
+.header__nav a{transition:color .35s var(--ease)}
+.header__nav a::after{transform-origin:right;transition:transform .5s var(--ease-out)}
+.header__nav a:hover::after,.header__nav a[aria-current="true"]::after{transform-origin:left}
+/* scroll progress: transform-driven, 2px */
+.header__progress{width:100%;height:2px;transform:scaleX(0);transform-origin:left;transition:transform .12s linear}
+/* theme toggle: both icons stacked, rotate + fade */
+.theme-toggle{position:relative;overflow:hidden}
+.theme-toggle svg{grid-area:1/1;transition:transform .4s var(--ease-out),opacity .3s var(--ease)}
+.theme-toggle .i-sun,.theme-toggle .i-moon,
+[data-theme="dark"] .theme-toggle .i-sun,[data-theme="dark"] .theme-toggle .i-moon{display:block}
+.theme-toggle .i-moon{opacity:1;transform:none}
+.theme-toggle .i-sun{opacity:0;transform:rotate(-90deg) scale(.6)}
+[data-theme="dark"] .theme-toggle .i-sun{opacity:1;transform:none}
+[data-theme="dark"] .theme-toggle .i-moon{opacity:0;transform:rotate(90deg) scale(.6)}
+/* smoother, no-flash theme change */
+.theme-fade *,.theme-fade *::before,.theme-fade *::after{
+  transition:background-color .45s var(--ease),color .45s var(--ease),border-color .45s var(--ease),box-shadow .45s var(--ease)!important}
+.theme-fade .theme-toggle svg{transition:transform .4s var(--ease-out),opacity .3s var(--ease)!important}
+
+/* ---------- 4. Scroll reveal (extends the existing .reveal system) -------- */
+.reveal-ready .reveal{opacity:0;transform:none;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.reveal-ready .reveal.is-in{opacity:1;animation:rv .9s var(--ease-out) var(--rd,0ms) backwards}
+.reveal-ready .pillar.reveal{--rv-y:calc(var(--rv-dist)*.9);--rv-s:.985;animation-duration:1s}
+.rv-skip,.rv-skip *,.rv-skip::before,.rv-skip::after{animation:none!important;transition:none!important}
+
+/* ---------- 5. Pillars ---------------------------------------------------- */
+.pillar__img img{transition:transform .8s var(--ease-out),filter .8s var(--ease)}
+.pillar__img::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,8,13,0) 50%,rgba(5,8,13,.5));transition:opacity .8s var(--ease)}
+.pillar__tags span{transition:background-color .4s var(--ease),box-shadow .4s var(--ease)}
+.pillar__badge svg{transition:transform .5s var(--ease-out)}
+.pillar__hit{transition:color .35s var(--ease),opacity .35s var(--ease)}
+@media (hover:hover){
+  .pillar:hover .pillar__img img,.pillar:focus-within .pillar__img img{transform:scale(1.04)}
+  [data-theme="dark"] .pillar:hover .pillar__img img{filter:brightness(.98) saturate(1.08)}
+  .pillar:hover .pillar__img::after,.pillar:focus-within .pillar__img::after{opacity:.35}
+  .pillar:hover .pillar__badge svg{transform:translateX(2px)}
+  [data-theme="dark"] .pillar:hover .pillar__tags span{background:rgba(8,121,237,.26);box-shadow:inset 0 0 0 1px rgba(0,185,233,.3)}
+  [data-theme="light"] .pillar:hover .pillar__tags span{background:rgba(255,255,255,.14)}
+}
+
+/* ---------- 6. Standards / metrics --------------------------------------- */
+.metric{position:relative}
+[data-theme="dark"] .metric{border-top-color:var(--line)}
+.metric::before{content:'';position:absolute;left:-1px;right:-1px;top:-2px;height:2px;border-radius:8px 8px 0 0;
+  background:linear-gradient(90deg,var(--blue),var(--cyan));transform-origin:left}
+.reveal-ready .metric.reveal:not(.is-in)::before{transform:scaleX(0)}
+.reveal-ready .metric.reveal.is-in::before{animation:line-in 1.1s var(--ease-out) calc(var(--rd,0ms) + 200ms) backwards}
+/* number leads, description follows */
+.reveal-ready .metric.reveal:not(.is-in)>:not(.metric__top){opacity:0}
+.reveal-ready .metric.reveal.is-in>:not(.metric__top){--rv-y:10px;animation:rv .8s var(--ease-out) calc(var(--rd,0ms) + 280ms) backwards}
+@media (hover:hover){
+  .metric:hover{transform:translateY(-4px)}
+  [data-theme="dark"] .metric:hover{box-shadow:0 22px 44px -18px rgba(0,0,0,.65),0 0 0 1px rgba(0,185,233,.14)}
+}
+
+/* ---------- 7. Process: uses existing .step.is-active / .is-done ---------- */
+.step__dot{transition:background-color .5s var(--ease),border-color .5s var(--ease),box-shadow .6s var(--ease),transform .5s var(--ease)}
+.step.is-active .step__dot{transform:scale(1.08)}
+.step__line::after{transition:transform .4s var(--ease)}
+.step.is-done .step__line::after{transition-duration:.9s;transition-timing-function:var(--ease-out)}
+.step,.step strong{transition:color .5s var(--ease)}
+
+/* ---------- 8. Case studies: alternating sideways reveal ------------------ */
+.reveal-ready .case.reveal{opacity:1}
+.reveal-ready .case.reveal.is-in{animation:none}
+.reveal-ready .case.reveal :is(.case__body,.case__media){--rv-y:var(--case-lift)}
+.reveal-ready .case.reveal .case__body{--rv-x:calc(var(--case-shift)*-1)}
+.reveal-ready .case.reveal .case__media{--rv-x:var(--case-shift)}
+.reveal-ready .case.reveal:nth-of-type(even) .case__body{--rv-x:var(--case-shift)}
+.reveal-ready .case.reveal:nth-of-type(even) .case__media{--rv-x:calc(var(--case-shift)*-1)}
+.reveal-ready .case.reveal:not(.is-in) :is(.case__body,.case__media){opacity:0}
+.reveal-ready .case.reveal.is-in .case__body{animation:rv 1s var(--ease-out) var(--rd,0ms) backwards}
+.reveal-ready .case.reveal.is-in .case__media{animation:rv 1s var(--ease-out) calc(var(--rd,0ms) + 120ms) backwards}
+.frame{transition:border-color .5s var(--ease)}
+.frame img{transition:transform .8s var(--ease-out)}
+[data-theme="dark"] .frame__view{position:relative}
+[data-theme="dark"] .frame__view::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,8,13,0) 45%,rgba(5,8,13,.38));transition:opacity .8s var(--ease)}
+@media (hover:hover){
+  .frame:hover img{transform:scale(1.035)}
+  [data-theme="dark"] .frame:hover{border-color:rgba(0,185,233,.25)}
+  [data-theme="dark"] .frame:hover .frame__view::after{opacity:.2}
+}
+
+/* ---------- 9. CTA -------------------------------------------------------- */
+.reveal-ready .cta__panel.reveal{--rv-y:calc(var(--rv-dist)*.9);--rv-s:.985;animation-duration:1s}
+.cta__panel>*{z-index:1}
+/* emblem fades in late, opacity unchanged */
+.reveal-ready .cta__panel.reveal:not(.is-in)::before{opacity:0}
+.reveal-ready .cta__panel.reveal.is-in::before{animation:chip-in 1.8s var(--ease) .5s backwards}
+/* slow architectural light */
+.cta__panel::after{content:'';position:absolute;inset:-30% -10%;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 38% 50% at 30% 35%,rgba(0,185,233,.16),transparent 70%),radial-gradient(ellipse 40% 55% at 72% 70%,rgba(8,121,237,.14),transparent 70%);
+  animation:chip-in 1.8s var(--ease) .4s backwards,cta-light 22s ease-in-out infinite alternate}
+@keyframes cta-light{from{transform:translate3d(-8%,-3%,0)}to{transform:translate3d(8%,3%,0)}}
+.reveal-ready .cta__panel.reveal:not(.is-in)::after{opacity:0;animation-play-state:paused}
+.reveal-ready .cta__panel.reveal:not(.is-in)>:is(h2,p,.btn){opacity:0}
+.reveal-ready .cta__panel.reveal.is-in>:is(h2,p,.btn){--rv-y:16px;animation:rv .9s var(--ease-out) backwards}
+.reveal-ready .cta__panel.reveal.is-in>h2{animation-delay:calc(var(--rd,0ms) + 300ms)}
+.reveal-ready .cta__panel.reveal.is-in>p{animation-delay:calc(var(--rd,0ms) + 430ms)}
+.reveal-ready .cta__panel.reveal.is-in>.btn{animation-delay:calc(var(--rd,0ms) + 560ms)}
+.cta .btn{box-shadow:inset 0 0 0 1px transparent}
+@media (hover:hover){
+  .cta .btn:hover{filter:none;box-shadow:inset 0 0 0 1px rgba(0,185,233,.65),0 14px 30px -12px rgba(0,0,0,.55),0 0 0 4px rgba(0,185,233,.1)}
+}
+
+/* ---------- 10. Buttons & links ------------------------------------------ */
+.btn{transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease),background-color .35s var(--ease),filter .35s var(--ease)}
+.btn--primary:active,.cta .btn:active{transform:translateY(0);filter:brightness(1.02)}
+@media (hover:hover){
+  .btn--primary:hover{filter:brightness(1.1)}
+  [data-theme="dark"] .btn--ghost:hover{background-color:rgba(255,255,255,.1);border-color:var(--cyan)}
+}
+.link::after{transition:transform .4s var(--ease-out)}
+.link:not(.link--off){background:linear-gradient(currentColor,currentColor) 0 calc(100% - 2px)/0 1px no-repeat;
+  transition:background-size .45s var(--ease-out),color .3s var(--ease)}
+@media (hover:hover){
+  .link:not(.link--off):hover{background-size:100% 1px}
+  [data-theme="dark"] .link:not(.link--off):hover{color:var(--cyan)}
+}
+
+/* ---------- 11. Mobile / tablet ------------------------------------------ */
+@media (max-width:900px){
+  .hero__bg{inset:0;translate:none}      /* no parallax on touch / small screens */
+  .hero__video{animation:none;transform:none}
+}
+
+/* ---------- 12. Reduced motion: everything visible, nothing moves --------- */
+@media (prefers-reduced-motion:reduce){
+  .hero__bg{translate:none}.hero__video{transform:none}.hero__bg::after{display:none}
+  .reveal-ready .reveal,.reveal-ready .case.reveal :is(.case__body,.case__media),
+  .reveal-ready .metric.reveal>*,.reveal-ready .cta__panel.reveal>*{opacity:1!important;transform:none!important}
+  .reveal-ready .cta__panel.reveal::before{opacity:.07}.reveal-ready .cta__panel.reveal::after{opacity:1}
+  .header__progress{transition:none}
+}

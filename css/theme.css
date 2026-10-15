@@ -1,0 +1,106 @@
+/* Theme tokens — light (default) and dark. Everything else reads these variables. */
+:root{
+  --blue:#0879ed;--cyan:#00b9e9;--deep:#0056d4;
+  /* Light theme palette: cool gray canvas + deep navy sections (matches the logo) */
+  --sage:#F3F5F8;--brown:#0c1d3d;
+  --bg:var(--sage);--bg2:#E8ECF1;--ink:#111827;--mut:#5A6575;--line:rgba(30,41,59,.12);
+  --card:#FFFFFF;--tint:#E6ECF4;--grid:rgba(30,41,59,.06);
+  --hdr:rgba(243,245,248,.92);--shadow:0 16px 36px -12px rgba(17,24,39,.22);
+  --web3:#d97706;--ok:#059669;--err:#d62f3a;--img-filter:none;
+}
+[data-theme="dark"]{
+  --bg:#05080d;--bg2:#07111f;--ink:#f5f9ff;--mut:#9aa9ba;--line:rgba(255,255,255,.1);
+  --card:#0b1726;--tint:rgba(8,121,237,.16);--grid:rgba(0,185,233,.07);
+  --hdr:rgba(5,8,13,.72);--shadow:0 16px 36px rgba(0,0,0,.5);
+  --web3:#f59e0b;--ok:#34d399;--err:#ff6b72;--img-filter:brightness(.88) saturate(1.05);
+}
+
+/* ==========================================================================
+   Light theme — sage + brown layer (dark theme is untouched)
+   ========================================================================== */
+[data-theme="light"]{
+  --card-shadow:0 1px 2px rgba(17,24,39,.08),0 16px 34px -14px rgba(17,24,39,.28);
+  --card-shadow-hover:0 2px 4px rgba(17,24,39,.10),0 30px 56px -18px rgba(17,24,39,.40);
+  --link-deep:#082f73;
+}
+/* Header logo: transparent, no plate. Footer is dark navy, so it keeps a white plate there. */
+[data-theme="light"] .footer__brand img{background:#fff;border-radius:8px;padding:6px 12px}
+[data-theme="light"] .header__logo img{height:40px}
+[data-theme="light"] .footer__brand img{box-sizing:content-box;height:36px}
+
+/* Hero (light) */
+[data-theme="light"] .hero{--shade:243,245,248;
+  background:
+    radial-gradient(ellipse 55% 70% at 78% 42%,rgba(0,185,233,.10),transparent 68%),
+    linear-gradient(180deg,#E8ECF1 0%,#F3F5F8 100%)}
+[data-theme="light"] .hero::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(rgba(30,41,59,.06) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,rgba(30,41,59,.06) 1px,transparent 1px) 0 0/48px 48px;
+  -webkit-mask-image:radial-gradient(ellipse 85% 80% at 60% 40%,#000 20%,transparent 80%);mask-image:radial-gradient(ellipse 85% 80% at 60% 40%,#000 20%,transparent 80%)}
+[data-theme="light"] .hero__video{mix-blend-mode:multiply;filter:saturate(1.25) contrast(1.05)}
+[data-theme="light"] .grad{background:linear-gradient(120deg,#14213d,#0a3d8f);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-theme="light"] .hero .btn--ghost{background:rgba(255,255,255,.72)}
+[data-theme="light"] .chip{background:rgba(255,255,255,.9)}
+[data-theme="light"] .chip small{color:#0a4fb8}
+[data-theme="light"] .kicker{padding:6px 12px;border-radius:99px;color:#0a3d8f;background:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.9)}
+[data-theme="light"] .kicker .dot{background:var(--blue)}
+
+/* Light sections */
+[data-theme="light"] .section--alt{background:
+  radial-gradient(rgba(30,41,59,.10) 1px,transparent 1.3px) 0 0/24px 24px,
+  linear-gradient(180deg,#E8ECF1 0%,#E8ECF1 100%)}
+[data-theme="light"] .metric{background:#FFFFFF;border-color:rgba(30,41,59,.10);border-top-color:var(--blue);box-shadow:var(--card-shadow);transition:transform .35s,box-shadow .35s}
+[data-theme="light"] .metric:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
+[data-theme="light"] .metric__num{background:linear-gradient(120deg,var(--deep),#0a8fc4);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-theme="light"] .case{border-top-color:rgba(30,41,59,.14)}
+[data-theme="light"] .case .link:not(.link--off){color:var(--link-deep)}
+[data-theme="light"] .pill{background:#fff;border-color:rgba(30,41,59,.12)}
+[data-theme="light"] .pill--live{color:#04664a}[data-theme="light"] .pill--dev{color:#8a4a00}
+[data-theme="light"] .frame{border-color:#fff;box-shadow:0 0 0 8px rgba(30,41,59,.06),0 34px 60px -26px rgba(10,30,70,.5)}
+[data-theme="light"] .frame__bar{background:#EEF1F5}
+
+/* Navy sections (Pillars, Process): light text, lifted brown cards */
+[data-theme="light"] :is(#pillars,#process){
+  --ink:#f2f7ff;--mut:#b7c6dd;--line:rgba(255,255,255,.14);--card:#152a52;--tint:rgba(255,255,255,.09);
+  --blue:#8fc8ff;--cyan:#5fd6f5;--web3:#fbbf24;
+  --card-shadow:0 1px 2px rgba(0,0,0,.2),0 18px 36px -14px rgba(0,0,0,.55);
+  --card-shadow-hover:0 2px 4px rgba(0,0,0,.25),0 30px 54px -18px rgba(0,0,0,.7);
+  background:radial-gradient(ellipse 60% 280px at 50% 0,rgba(255,255,255,.07),transparent 70%),var(--brown);color:var(--ink)}
+[data-theme="light"] :is(#pillars,#process) .kicker{color:#a9d6ff;background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
+[data-theme="light"] :is(#pillars,#process) .kicker .dot{background:var(--cyan)}
+[data-theme="light"] .pillar__img{background:linear-gradient(135deg,#1f3d73,#0f2247);box-shadow:var(--card-shadow)}
+[data-theme="light"] .pillar__img::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 55%,rgba(6,16,38,.4))}
+[data-theme="light"] .pillar__tags span{border:1px solid rgba(255,255,255,.14)}
+[data-theme="light"] .badges span,[data-theme="light"] .tags span{border:1px solid rgba(255,255,255,.18)}
+[data-theme="light"] .panel{background:#152a52;border-color:rgba(255,255,255,.12);box-shadow:var(--card-shadow)}
+[data-theme="light"] .step__dot{background:var(--brown);border-color:rgba(255,255,255,.4)}
+[data-theme="light"] .step.is-done .step__dot,[data-theme="light"] .step.is-active .step__dot{background:#8fc8ff;border-color:#8fc8ff}
+[data-theme="light"] .step.is-active .step__dot{box-shadow:0 0 0 6px rgba(255,255,255,.18)}
+[data-theme="light"] .step__line{background:rgba(255,255,255,.2)}
+[data-theme="light"] .step__line::after{background:linear-gradient(90deg,#8fc8ff,#00b9e9)}
+
+/* CTA panel + modal + footer */
+[data-theme="light"] .cta__panel{background:radial-gradient(ellipse 60% 90% at 50% 0,rgba(0,185,233,.26),transparent 70%),linear-gradient(135deg,#091733,#10274f)}
+[data-theme="light"] .field input{background:#fff}
+[data-theme="light"] .footer{--ink:#f2f7ff;--mut:#b7c6dd;--line:rgba(255,255,255,.14);--blue:#8fc8ff;background:var(--brown);color:var(--ink);border-top:0}
+
+/* Light theme: black menu text (stays readable over the hero picture) */
+[data-theme="light"] .header__nav a:not(.btn) { color: #000 }
+
+/* Light theme: darker secondary text. The old gray (#5A6575) was too faint on the blue photo background
+   (hero, About, Standards, Work, captions, stat labels). The navy sections and the footer set their own light text. */
+[data-theme="light"] { --mut: #263244 }
+
+/* Light theme: the pop-up is a white card, so drop the pill background on its label to keep it aligned with the heading */
+[data-theme="light"] .modal .kicker { padding: 0; background: none; border: 0 }
+
+/* Light theme: Tech Core connector lines + rings in dark navy so they stand out on the light blue background */
+[data-theme="light"] .cc__base { stroke: rgba(12, 29, 61, .8); stroke-width: 1.5 }
+[data-theme="light"] .cc__dash { stroke: #0c1d3d; stroke-width: 3 }
+[data-theme="light"] .cc__ring { border-color: rgba(12, 29, 61, .65) }
+[data-theme="light"] .cc__ring--2 { border-color: rgba(12, 29, 61, .35) }
+/* ...and make the centre circle solid so the lines stop at its edge instead of running through the logo */
+[data-theme="light"] .cc__hub { background: radial-gradient(circle, #eaf3ff, #fff 72%) }
+
+/* Dark theme: one background photo for the whole page (the first one). The second photo (corridor) is switched off. */
+[data-theme="dark"] .bg-scene .bg-scene__a { opacity: 1 }
+[data-theme="dark"] .bg-scene .bg-scene__b { display: none }

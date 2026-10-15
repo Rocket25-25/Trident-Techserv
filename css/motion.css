@@ -1,0 +1,620 @@
+/* ==========================================================================
+   Trident Techserv — scroll + cursor motion
+   Load AFTER responsive.css. Driven by js/motion.js, which only sets CSS
+   variables; all movement lives here and uses the individual `translate` /
+   `scale` properties, so it never fights the existing reveal animations or
+   hover transforms.
+
+   Variables set by JS
+     --p   pillars grid scroll position   (-1 below screen … 0 centred … 1 above)
+     --ip  each pillar image               (same range)
+     --cp  each case study                 (same range)
+     --mp  metrics grid                    (same range)
+     --hp  hero scroll progress            (0 … 1)
+     --tx --ty  cursor position on a card  (-1 … 1)
+     --mx --my  cursor position for glow   (% )
+     --cx --cy  cursor position in hero    (-1 … 1)
+   ========================================================================== */
+@media (prefers-reduced-motion:no-preference){
+
+/* ---------- Background photo: slides with scroll, drifts with cursor -------- */
+.bg-scene>i{translate:calc(var(--gx,0)*-14px) calc((var(--sp,0) - .5)*-100px + var(--gy,0)*-8px)}
+
+/* ---------- Hero: layers move at different depths ------------------------- */
+.hero__glow{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .7s var(--ease,ease);
+  background:radial-gradient(560px circle at var(--mx,50%) var(--my,40%),rgba(0,185,233,.22),rgba(8,121,237,.09) 42%,transparent 72%)}
+.hero.is-hot .hero__glow{opacity:1}
+
+.hero__copy{translate:calc(var(--cx,0)*-8px) calc(var(--hp,0)*48px + var(--cy,0)*-5px)}
+.chip--1{translate:calc(var(--cx,0)*-26px) calc(var(--hp,0)*-80px + var(--cy,0)*-16px)}
+.chip--2{translate:calc(var(--cx,0)*18px)  calc(var(--hp,0)*-46px + var(--cy,0)*10px)}
+
+@media (min-width:901px){
+  /* background drifts opposite to the cursor; extra side room so edges never show */
+  /* only 24px of spare room above (was 96px, which cropped the top of the video);
+     scroll parallax is capped at 18px so no gap ever shows */
+  .hero__bg{inset:-24px -12px 0;
+    translate:calc(var(--cx,0)*-8px) calc(min(var(--hero-y,0px),18px) + var(--cy,0)*-5px)}
+  .hero__video{object-position:60% 40%}
+  /* lighter zoom + smaller drift than premium.css (was scale 1.035, +-0.9%) */
+  .hero__video{transform:scale(1.015);animation:hero-drift-soft 40s ease-in-out infinite alternate}
+  @keyframes hero-drift-soft{from{transform:scale(1.015) translate3d(-.4%,0,0)}to{transform:scale(1.015) translate3d(.4%,0,0)}}
+}
+
+/* ---------- Pillars: cards drift at different speeds, images float inside -- */
+@media (min-width:901px){
+  .pillars .pillar{translate:0 calc(var(--p,0)*var(--k,0)*1px)}
+  /* same value on every card so the row always stays in one line */
+  .pillars .pillar{--k:14}
+}
+.pillar__img{
+  transform:perspective(900px) rotateX(calc(var(--ty,0)*-5deg)) rotateY(calc(var(--tx,0)*6deg));
+  will-change:transform}
+/* image is oversized; scroll slides it vertically, cursor slides it the other way */
+.pillar__img img{
+  scale:1.12;
+  translate:calc(var(--tx,0)*-8px) calc(var(--ip,0)*2.5% + var(--ty,0)*-4px)}
+/* no extra zoom on hover: the image only tilts, slides and gets the light */
+.pillar:hover .pillar__img img,.pillar:focus-within .pillar__img img{transform:none}
+/* hover: whole card lifts up, and settles back to its place when the cursor leaves */
+.pillars .pillar{transition:transform .5s var(--ease-out,ease) !important}
+/* invisible strip under the card so the lift never makes the cursor "fall off" the bottom edge */
+.pillar::after{content:'';position:absolute;left:0;right:0;top:100%;height:44px}
+@media (hover:hover){
+  /* lifts a little, and follows the cursor: cursor near the top of the card = a bit higher, near the bottom = a bit lower */
+  .pillars .pillar:hover,.pillars .pillar:focus-within{transform:translateY(calc(-12px + var(--ty,0)*5px))}
+}
+/* touch screens: the card in the middle of the screen is lifted and lit (class set by js/motion.js, never on desktop) */
+.pillars .pillar.is-focus{transform:translateY(-10px)}
+.pillar__img img{transition:scale .6s var(--ease-out,ease)}
+.pillar.is-focus .pillar__img img{scale:1.2}
+.frame{transition:scale .5s var(--ease-out,ease),border-color .5s var(--ease,ease)}
+.frame.is-focus{scale:1.03}
+
+/* ---------- Mobile view: stronger movement (touch screens or windows 900px wide or less) ---------- */
+@media (max-width:900px),(hover:none){
+  /* cards sway sideways in opposite directions while scrolling, and lift higher when in the middle */
+  .pillars .pillar{translate:calc(var(--tx,0)*7px) 0;will-change:transform,translate}
+  .pillars .pillar:nth-child(even){translate:calc(var(--tx,0)*-7px) 0}
+  .pillars .pillar.is-focus{transform:translateY(-20px) scale(1.02)}
+  /* image tilts harder, slides further and zooms in */
+  .pillar__img{transform:perspective(700px) rotateX(calc(var(--ty,0)*-11deg)) rotateY(calc(var(--tx,0)*14deg))}
+  .pillar__img img{scale:1.2;translate:calc(var(--tx,0)*-16px) calc(var(--ip,0)*7% + var(--ty,0)*-9px)}
+  .pillar.is-focus .pillar__img img{scale:1.32}
+  .pillar.is-focus .pillar__img{box-shadow:0 26px 44px -18px rgba(0,185,233,.45)}
+  .pillar__img{transition:box-shadow .5s var(--ease,ease)}
+  /* case-study screens and metric cards move too */
+  .frame{transform:perspective(800px) rotateX(calc(var(--ty,0)*-9deg)) rotateY(calc(var(--tx,0)*11deg))}
+  .frame.is-focus{scale:1.05}
+  .frame img{scale:1.24;translate:calc(var(--tx,0)*-22px) calc(var(--cp,0)*9% + var(--ty,0)*-12px)}
+  #why .grid .metric.is-focus{transform:translateY(-12px) scale(1.02)}
+}
+/* soft light that follows the cursor */
+.pillar__img::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease,ease);
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.28),rgba(0,185,233,.10) 42%,transparent 72%)}
+.pillar.is-hot .pillar__img::before{opacity:1}
+
+/* ---------- Metrics: gentle stagger ---------------------------------------- */
+@media (min-width:901px){
+  #why .grid .metric{translate:0 calc(var(--mp,0)*var(--k,0)*1px)}
+  #why .grid .metric{--k:10}
+}
+
+/* hover: card lifts up, settles back when the cursor leaves (same as the pillars) */
+#why .grid .metric{transition:transform .5s var(--ease-out,ease),box-shadow .5s var(--ease,ease) !important}
+#why .grid .metric::after{content:'';position:absolute;left:0;right:0;top:100%;height:16px}
+@media (hover:hover){
+  #why .grid .metric:hover,#why .grid .metric:focus-within{transform:translateY(-14px)}
+}
+
+/* ---------- Case studies: text and screen separate in depth ---------------- */
+@media (min-width:901px){
+  .case__media .frame{translate:0 calc(var(--cp,0)*26px)}
+  .case__body{translate:0 calc(var(--cp,0)*-12px)}
+}
+.frame{
+  transform:perspective(1000px) rotateX(calc(var(--ty,0)*-4deg)) rotateY(calc(var(--tx,0)*5deg));
+  will-change:transform}
+.frame__view{position:relative;aspect-ratio:16/10}
+.frame img{
+  position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;
+  scale:1.16;
+  translate:calc(var(--tx,0)*-14px) calc(var(--cp,0)*6% + var(--ty,0)*-8px)}
+.frame__view::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .5s var(--ease,ease);
+  background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.22),rgba(0,185,233,.10) 42%,transparent 72%)}
+.frame.is-hot .frame__view::before{opacity:1}
+
+}
+
+/* ==========================================================================
+   Background photos (always on, motion aside)
+   js/motion.js adds .bg-scene and html.has-scene. The photos sit fixed behind
+   the page; each section is a tinted pane over them, so the picture shows
+   while scrolling instead of a flat colour.
+   ========================================================================== */
+.bg-scene{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--bg)}
+.bg-scene>i{position:absolute;inset:-70px -30px;background-size:cover;background-position:62% 50%;
+  opacity:0;transition:opacity 1.1s ease}
+.bg-scene__a{background-image:url(../assets/images/datacenter-wide.jpg)}
+.bg-scene__b{background-image:url(../assets/images/datacenter-corridor.jpg);background-position:55% 58%}
+.bg-scene[data-on="a"] .bg-scene__a,.bg-scene[data-on="b"] .bg-scene__b{opacity:1}
+@media (prefers-reduced-motion:reduce){.bg-scene>i{transition:none}}
+
+/* dark theme: tinted panes (raise the last number to hide more of the photo, lower it to show more) */
+html.has-scene[data-theme="dark"] .section{background:rgba(5,8,13,.62)}
+html.has-scene[data-theme="dark"] .section--alt{background:rgba(7,17,31,.70)}
+html.has-scene[data-theme="dark"] .cta{background:rgba(5,8,13,.45)}
+
+/* light theme: angular glass-facet blue artwork in the brand blues (bg-light-a/b.jpg), never white */
+html[data-theme="light"] .bg-scene{background:#7ea4d8}
+html[data-theme="light"] .bg-scene>i{background-position:center}
+html[data-theme="light"] .bg-scene__a{background-image:url(../assets/images/bg-light-a.jpg)}
+html[data-theme="light"] .bg-scene__b{background-image:url(../assets/images/bg-light-b.jpg)}
+html.has-scene[data-theme="light"] .section{background:rgba(190,206,228,.22)}
+html.has-scene[data-theme="light"] :is(#pillars,#process){background:rgba(12,29,61,.78)}
+html.has-scene[data-theme="light"] .section--alt{background:rgba(205,218,236,.50)}
+html.has-scene[data-theme="light"] .cta{background:rgba(190,206,228,.25)}
+
+/* ---------- FIX: "Web Development & Marketing" card image was zoomed in too much ----------
+   That image has text ("DIGITAL MARKETING") close to its left/right edges, so the 1.12x / 1.2x / 1.32x
+   zoom + sideways slide + 3:2 crop was cutting the words off. Frames now match the 16:9 artwork,
+   and this one image gets only a tiny zoom with no sideways slide (the tilt + light effects still work). */
+.pillar__img{aspect-ratio:16/9}
+.pillar .pillar__img img[src*="web-development"]{
+  scale:1.06;
+  translate:0 calc(var(--ip,0)*1.5% + var(--ty,0)*-2px);
+  transform:none;
+  object-position:center}
+.pillar.is-focus .pillar__img img[src*="web-development"]{scale:1.08}
+
+/* ---------- FIX (mobile hero): headline sits ON the video, like desktop, but the video is no longer over-zoomed ----------
+   Before: a full-screen tall hero cropped the wide video to a thin slice (looked huge) and centred the text in
+   empty space. Now (900px and below): the hero fits its content, the video fills the top part (about 2/3 of the
+   hero) and the heading + sub-title sit on top of it, left-aligned with a soft dark side-shade for readability.
+   The video fades into the page colour underneath, where the description and buttons sit. Desktop is untouched. */
+@media (max-width:900px){
+  .hero{
+    min-height:0;
+    align-items:flex-start;
+    padding:calc(72px + 56px) 0 40px}
+  .hero__bg{
+    inset:0 0 auto 0;
+    height:clamp(430px,128vw,660px)}
+  .hero__video{
+    object-fit:cover;
+    object-position:62% 50%;
+    opacity:1}
+  .hero__shade{
+    background:
+      linear-gradient(90deg,rgba(var(--shade),.88) 0,rgba(var(--shade),.62) 50%,rgba(var(--shade),.2) 100%),
+      linear-gradient(180deg,rgba(var(--shade),.40) 0,rgba(var(--shade),0) 24%,rgba(var(--shade),0) 52%,rgb(var(--shade)) 100%)}
+  .hero h1{font-size:clamp(34px,10vw,52px);margin-bottom:14px}
+  /* soft halo behind the headline so it stays readable over the video (drop-shadow also works on the gradient words) */
+  .hero h1{filter:drop-shadow(0 2px 10px rgba(var(--shade),.85))}
+  .hero__sub{font-size:18px;margin-bottom:10px;text-shadow:0 1px 12px rgba(var(--shade),.8)}
+  .hero__desc{margin-bottom:24px}
+}
+
+/* ---------- Pillar cards: border (same language as the Standards cards: 1px line + blue top accent) ----------
+   Rounded card with a soft glass background, a thin border, and a blue accent line on top.
+   On hover / focus (and on the highlighted card on phones) the border lights up cyan with a soft glow. */
+.pillars .pillar{
+  padding:14px 14px 18px;
+  border:1px solid var(--line);
+  border-top:2px solid var(--blue);
+  border-radius:12px;
+  background:var(--card);
+  background:color-mix(in srgb,var(--card) 72%,transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  box-shadow:0 14px 30px -18px rgba(0,0,0,.55)}
+/* keep the card lift animation and let the border / glow fade in too (motion.css had locked transitions to transform only) */
+.pillars .pillar{transition:transform .5s var(--ease-out,ease),border-color .4s var(--ease,ease),box-shadow .4s var(--ease,ease),background-color .4s var(--ease,ease) !important}
+.pillar__img{border-radius:8px}
+.pillar:has(.pillar__hit:focus-visible){border-radius:12px}
+.pillar__hit::after{border-radius:12px}
+@media (hover:hover){
+  .pillars .pillar:hover,.pillars .pillar:focus-within{
+    border-color:rgba(0,185,233,.6);border-top-color:var(--cyan);
+    box-shadow:0 0 0 1px rgba(0,185,233,.25),0 26px 44px -20px rgba(0,185,233,.45)}
+}
+.pillars .pillar.is-focus{
+  border-color:rgba(0,185,233,.6);border-top-color:var(--cyan);
+  box-shadow:0 0 0 1px rgba(0,185,233,.25),0 26px 44px -20px rgba(0,185,233,.45)}
+[data-theme="light"] .pillars .pillar{background:color-mix(in srgb,var(--card) 82%,transparent);box-shadow:var(--card-shadow)}
+@media (max-width:640px){
+  .pillars .pillar{padding:12px 12px 16px}
+}
+
+/* ---------- Pillar cards: "pop up" when the cursor is on them ----------
+   The hovered card rises, grows a little, sits above its neighbours and gets a deeper glow + a solid
+   background so it clearly stands out from the page. It settles back smoothly when the cursor leaves. */
+.pillars .pillar{
+  position:relative;
+  transition:transform .45s var(--ease-out,ease),scale .45s var(--ease-out,ease),border-color .4s var(--ease,ease),box-shadow .45s var(--ease,ease),background-color .4s var(--ease,ease) !important}
+@media (hover:hover) and (min-width:901px){
+  .pillars .pillar:hover,.pillars .pillar:focus-within{
+    z-index:5;
+    scale:1.03;
+    background:var(--card);
+    box-shadow:0 0 0 1px rgba(0,185,233,.3),0 0 22px -6px rgba(0,185,233,.38),0 20px 38px -20px rgba(0,0,0,.6)}
+  /* the other cards step back just slightly while one is popped up */
+  .pillars:hover .pillar:not(:hover):not(:focus-within){scale:.99;opacity:.9}
+}
+.pillars .pillar{transition-property:transform,scale,opacity,border-color,box-shadow,background-color !important}
+
+/* ---------- Standards cards ("Built for Predictable Scale"): border + pop-up on hover ----------
+   Same look as the pillar cards: rounded card with a clearly visible border and the blue accent line on top.
+   On hover the card rises, grows a little, sits above its neighbours and glows cyan; the others step back. */
+#why .grid .metric{
+  border:1px solid rgba(255,255,255,.16);
+  border-top:2px solid rgba(255,255,255,.16);
+  border-radius:12px;
+  position:relative}
+[data-theme="light"] #why .grid .metric{border-color:rgba(10,61,143,.22)}
+/* blue accent line sits between the rounded corners so it never pokes out of the curve */
+#why .grid .metric::before{left:14px;right:14px;border-radius:0 0 3px 3px}
+#why .grid .metric{
+  transition:transform .45s var(--ease-out,ease),scale .45s var(--ease-out,ease),opacity .4s var(--ease,ease),border-color .4s var(--ease,ease),box-shadow .45s var(--ease,ease) !important}
+@media (hover:hover) and (min-width:901px){
+  #why .grid .metric:hover,#why .grid .metric:focus-within{
+    z-index:5;
+    scale:1.07;
+    border-color:rgba(0,185,233,.6);
+    box-shadow:0 0 0 1px rgba(0,185,233,.3),0 0 38px -6px rgba(0,185,233,.4),0 36px 64px -22px rgba(0,0,0,.6)}
+  [data-theme="light"] #why .grid .metric:hover,[data-theme="light"] #why .grid .metric:focus-within{
+    box-shadow:0 0 0 1px rgba(0,185,233,.35),0 0 34px -8px rgba(0,185,233,.45),0 34px 56px -22px rgba(10,30,70,.45)}
+  #why .grid:hover .metric:not(:hover):not(:focus-within){scale:.98;opacity:.82}
+}
+#why .grid .metric.is-focus{
+  border-color:rgba(0,185,233,.6);
+  box-shadow:0 0 0 1px rgba(0,185,233,.3),0 22px 44px -20px rgba(0,185,233,.45)}
+
+/* ---------- Standards cards on phones: compact 2 x 2 tiles (icon-style number, title, short text) ----------
+   Phones (640px and below) get two cards per row, centred content, a rounded number tile on top and a smaller
+   description. The tick-list and tiny corner tag are hidden to keep the tiles short. Desktop/tablet unchanged. */
+@media (max-width:640px){
+  #why .grid--4{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  #why .grid .metric{
+    padding:16px 12px 16px;
+    border-radius:16px;
+    text-align:center;
+    display:flex;flex-direction:column;align-items:center}
+  #why .grid .metric::before{left:22px;right:22px}
+  /* the rounded tile is drawn on .metric__top so the number keeps its own text colour / gradient in both themes */
+  #why .metric__top{
+    flex-direction:column;align-items:center;justify-content:center;gap:0;
+    width:fit-content;margin:0 auto 10px;
+    padding:9px 14px;
+    border-radius:12px;
+    background:rgba(8,121,237,.16);
+    border:1px solid rgba(0,185,233,.28)}
+  [data-theme="light"] #why .metric__top{background:rgba(8,121,237,.08);border-color:rgba(8,121,237,.22)}
+  #why .metric__num{
+    font-size:clamp(22px,7vw,28px);
+    line-height:1.1}
+  #why .metric__tag{display:none}
+  #why .metric h3{font-size:14px;line-height:1.3;margin:0 0 6px}
+  #why .metric p{font-size:11.5px;line-height:1.5;margin:0}
+  #why .metric .ticks{display:none}
+  #why .grid .metric.is-focus{transform:translateY(-6px) scale(1.02)}
+}
+/* ---------- Light theme hero: toned steel-blue instead of near-white ----------
+   The light hero video is mostly white and is multiplied onto the hero colour, so the hero colour decides
+   how bright it looks. Using a soft steel blue here keeps the video and the page from glaring. */
+[data-theme="light"] .hero{
+  --shade:168,188,214;--hero-bg:#a8bcd6;--mut:#2b3748;
+  background:
+    radial-gradient(ellipse 55% 70% at 78% 42%,rgba(0,185,233,.18),transparent 68%),
+    linear-gradient(180deg,#9fb5d1 0%,#b4c6dc 100%)}
+[data-theme="light"] .hero__video{filter:saturate(1.2) contrast(1.05) brightness(.97)}
+
+/* ---------- Pillar cards: more space between the picture and the text below it ---------- */
+#pillars .pillars .pillar__img{margin-bottom:20px}
+@media (max-width:640px){#pillars .pillars .pillar__img{margin-bottom:16px}}
+
+/* ---------- Pillar cards: the box starts below the gap ----------
+   The picture floats on its own, the gap shows the page background, and the card box (border, glass
+   background, glow) only wraps the details. The box is drawn by ::before, so nothing in the HTML changed. */
+#pillars .pillars .pillar{
+  container-type:inline-size;
+  background:none !important;border:0 !important;box-shadow:none !important;
+  -webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+#pillars .pillars .pillar::before{
+  content:'';position:absolute;z-index:-1;left:0;right:0;bottom:0;
+  top:calc(100cqw * 9 / 16 + 20px);
+  border:1px solid var(--line);border-top:2px solid var(--blue);border-radius:12px;
+  background:color-mix(in srgb,var(--card) 72%,transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  box-shadow:0 14px 30px -18px rgba(0,0,0,.55);
+  transition:border-color .4s var(--ease,ease),box-shadow .45s var(--ease,ease),background-color .4s var(--ease,ease)}
+#pillars .pillars .pillar__img{border-radius:12px;box-shadow:0 14px 30px -16px rgba(0,0,0,.6)}
+@media (hover:hover){
+  #pillars .pillars .pillar:hover::before,#pillars .pillars .pillar:focus-within::before{
+    border-color:rgba(0,185,233,.6);border-top-color:var(--cyan);background:var(--card);
+    box-shadow:0 0 0 1px rgba(0,185,233,.25),0 26px 44px -20px rgba(0,185,233,.45)}
+}
+#pillars .pillars .pillar.is-focus::before{
+  border-color:rgba(0,185,233,.6);border-top-color:var(--cyan);
+  box-shadow:0 0 0 1px rgba(0,185,233,.25),0 26px 44px -20px rgba(0,185,233,.45)}
+@media (max-width:640px){#pillars .pillars .pillar::before{top:calc(100cqw * 9 / 16 + 16px)}}
+
+
+/* ==========================================================================
+   Standards command-center ("Built for Predictable Scale"): new style + animation
+   - cards fly in from the core, then float gently; HUD corner brackets grow on hover
+   - connector lines draw themselves, light streaks run into the core
+   - core: spinning comet rings + radar ripples; numbers count up (js/motion.js)
+   ========================================================================== */
+.cc .cc__net,.reveal-ready .cc:not(.is-in) .cc__net{clip-path:none;transition:none}
+
+/* connector lines */
+.cc__base{stroke-dasharray:100;stroke-dashoffset:0;transition:stroke-dashoffset 1.3s cubic-bezier(.2,.7,.2,1) .6s}
+.reveal-ready .cc:not(.is-in) .cc__base{stroke-dashoffset:100}
+.cc__dash{stroke-dasharray:7 93;stroke-dashoffset:7;stroke-linecap:round;filter:drop-shadow(0 0 4px var(--cyan));animation:cx-run 2.6s cubic-bezier(.45,0,.55,1) infinite}
+.cc__dash:nth-child(6){animation-delay:.65s}.cc__dash:nth-child(7){animation-delay:1.3s}.cc__dash:nth-child(8){animation-delay:1.95s}
+.reveal-ready .cc:not(.is-in) .cc__dash{opacity:0}
+@keyframes cx-run{from{stroke-dashoffset:7}to{stroke-dashoffset:-100}}
+
+/* core: comet rings + radar ripples + breathing glow */
+.cc__ring,.cc__ring--2{border:0;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))}
+.cc__ring{background:conic-gradient(from 0deg,transparent 0 45%,var(--ra,var(--cyan)));animation:cc-spin 3.4s linear infinite}
+.cc__ring--2{background:conic-gradient(from 180deg,transparent 0 55%,var(--rb,#4f9dff));animation:cc-spin 5.2s linear infinite reverse}
+.cc__core::before,.cc__core::after{content:'';position:absolute;inset:22px;border-radius:50%;border:1px solid var(--ra,var(--cyan));opacity:0;animation:cx-ripple 3.4s ease-out infinite}
+.cc__core::after{animation-delay:1.7s}
+@keyframes cx-ripple{0%{scale:.75;opacity:.7}100%{scale:1.9;opacity:0}}
+.cc__hub{animation:cx-breathe 3.6s ease-in-out infinite}
+@keyframes cx-breathe{0%,100%{box-shadow:0 0 22px rgba(0,185,233,.3)}50%{box-shadow:0 0 46px rgba(0,185,233,.7)}}
+:root:not([data-theme="dark"]) .cc__ring{--ra:#0c1d3d}
+:root:not([data-theme="dark"]) .cc__ring--2{--rb:#0a3d8f}
+:root:not([data-theme="dark"]) .cc__core::before,:root:not([data-theme="dark"]) .cc__core::after{--ra:#0c1d3d}
+
+/* cards: sharper glass panel, HUD corner brackets, fly-in + float */
+.cc__mod{border-radius:8px;--b:14px}
+.cc__mod::after{content:'';position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  background:
+    linear-gradient(var(--cyan),var(--cyan)) 0 0/var(--b) 2px no-repeat,linear-gradient(var(--cyan),var(--cyan)) 0 0/2px var(--b) no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) 100% 0/var(--b) 2px no-repeat,linear-gradient(var(--cyan),var(--cyan)) 100% 0/2px var(--b) no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) 0 100%/var(--b) 2px no-repeat,linear-gradient(var(--cyan),var(--cyan)) 0 100%/2px var(--b) no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) 100% 100%/var(--b) 2px no-repeat,linear-gradient(var(--cyan),var(--cyan)) 100% 100%/2px var(--b) no-repeat;
+  transition:background-size .4s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){.cc__mod:hover{--b:34px}}
+.cc__mod--1{--fx:70px;--fy:50px}.cc__mod--3{--fx:-70px;--fy:50px}.cc__mod--2{--fx:70px;--fy:-50px}.cc__mod--4{--fx:-70px;--fy:-50px}
+.cc.is-in .cc__mod{animation:cx-in .9s cubic-bezier(.2,.7,.2,1) calc(var(--i)*140ms + 200ms) backwards,cx-float 7s ease-in-out calc(1.4s + var(--i)*700ms) infinite}
+@keyframes cx-in{from{opacity:0;transform:translate(var(--fx,0),var(--fy,0)) scale(.9);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes cx-float{0%,100%{translate:0 0}50%{translate:0 -5px}}
+.cc__num{font-variant-numeric:tabular-nums}
+
+/* caption: light shimmer running through the text */
+.cc__cap{background:linear-gradient(90deg,var(--mut) 40%,var(--cyan) 50%,var(--mut) 60%) 200% 0/220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:cx-shine 4.5s linear infinite}
+@keyframes cx-shine{to{background-position:-100% 0}}
+
+@media (prefers-reduced-motion:reduce){
+  .cc__dash,.cc__ring,.cc__ring--2,.cc__core::before,.cc__core::after,.cc__hub,.cc__cap{animation:none}
+  .cc.is-in .cc__mod{animation:none}
+}
+
+
+/* ==========================================================================
+   Scale Engine ("Built for Predictable Scale"): canvas stage, stage labels, glass cards
+   Accent colours live in the variables below - change --se-a / --se-hot to re-colour the whole visual.
+   ========================================================================== */
+.se{--se-a:#00b9e9;--se-b:#0879ed;--se-hot:#9be8ff;--se-line:#7fb8ff;--se-node:#ffffff;max-width:1100px;margin:0 auto}
+:root:not([data-theme="dark"]) .se{--se-a:#0879ed;--se-b:#0c1d3d;--se-hot:#0a3d8f;--se-line:#0c1d3d;--se-node:#0c1d3d}
+.se__stage{position:relative;height:clamp(340px,50vw,540px);border-radius:16px;overflow:hidden;border:1px solid rgba(120,190,255,.16);
+  background:radial-gradient(ellipse at 50% 46%,rgba(8,121,237,.16),transparent 62%),linear-gradient(180deg,rgba(7,17,31,.55),rgba(5,10,20,.35))}
+:root:not([data-theme="dark"]) .se__stage{background:radial-gradient(ellipse at 50% 46%,rgba(255,255,255,.6),rgba(255,255,255,.2) 72%);border-color:rgba(12,29,61,.18)}
+.se__canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.se__steps{list-style:none;display:flex;justify-content:center;flex-wrap:wrap;gap:6px 24px;margin:18px 0 30px;padding:0;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:var(--mut)}
+.se__step{display:flex;align-items:center;gap:8px;opacity:.45;transition:opacity .6s,color .6s}
+.se__step::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;transition:background .6s,box-shadow .6s}
+.se__step.is-on{opacity:1;color:var(--ink)}
+.se__step.is-on::before{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.se__cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.se__cards .cc__mod{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+@media (max-width:1000px){.se__cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.se__cards{grid-template-columns:1fr}.se__stage{height:340px}}
+/* ==========================================================================
+   Standards section: original box size kept; the 4 cards sit INSIDE the box on four sides
+   (two left, two right) over the network, always visible. No pop-in, no zoom, no float.
+   Tablet/mobile: box on top, cards under it (not enough room to overlay).
+   ========================================================================== */
+@media (min-width:1001px){
+  .se{position:relative;display:grid;grid-template-columns:minmax(0,1fr)}
+  .se__stage{grid-area:1/1;height:auto;min-height:600px}
+  .se__steps{grid-area:1/1;align-self:end;justify-self:center;z-index:3;margin:0 0 14px;gap:6px 14px;letter-spacing:.14em;font-size:10px}
+  .se__cards{grid-area:1/1;z-index:2;display:grid;grid-template-columns:minmax(0,285px) minmax(0,1fr) minmax(0,285px);grid-template-rows:1fr 1fr;gap:14px;padding:18px 18px 44px;pointer-events:none}
+  .se__card{pointer-events:auto;padding:14px 18px 12px}
+  .se__card:nth-child(1){grid-column:1;grid-row:1}
+  .se__card:nth-child(2){grid-column:1;grid-row:2}
+  .se__card:nth-child(3){grid-column:3;grid-row:1}
+  .se__card:nth-child(4){grid-column:3;grid-row:2}
+  .se__card .cc__num{font-size:36px;margin:6px 0 0}
+  .se__card h3{font-size:11px;margin-bottom:5px}
+  .se__card p{font-size:12px;line-height:1.45;margin-bottom:8px}
+  .se__card .ticks{padding-top:8px}
+  .se__card .ticks li{font-size:12px;line-height:1.35}
+  .se__card .cc__dots{margin-top:8px}
+}
+.reveal-ready .se .se__card.reveal,.reveal-ready .se .se__card.reveal.is-in,
+.reveal-ready .se .se__stage.reveal,.reveal-ready .se .se__stage.reveal.is-in{opacity:1!important;transform:none!important;animation:none!important;transition:border-color .3s,box-shadow .3s}
+.se .se__card:hover{transform:none!important}
+
+/* ==========================================================================
+   Standards cards: attractive glass look (accent colour + icon per card, gradient numbers, glow, connector lines)
+   ========================================================================== */
+html .se .se__card.cc__mod:nth-child(1){--ac:#22d3ee;--acr:34,211,238;--cyan:#22d3ee}
+html .se .se__card:nth-child(1) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322d3ee' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 3 8l9 5 9-5-9-5Z'/%3E%3Cpath d='M3 8v8l9 5 9-5V8'/%3E%3Cpath d='M12 13v8'/%3E%3C/svg%3E")}
+html .se .se__card.cc__mod:nth-child(2){--ac:#5b9dff;--acr:91,157,255;--cyan:#5b9dff}
+html .se .se__card:nth-child(2) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b9dff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7l1-8Z'/%3E%3C/svg%3E")}
+html .se .se__card.cc__mod:nth-child(3){--ac:#34e5b0;--acr:52,229,176;--cyan:#34e5b0}
+html .se .se__card:nth-child(3) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334e5b0' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h4l3-8 4 16 3-8h4'/%3E%3C/svg%3E")}
+html .se .se__card.cc__mod:nth-child(4){--ac:#a78bfa;--acr:167,139,250;--cyan:#a78bfa}
+html .se .se__card:nth-child(4) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E")}
+html .se .se__card.cc__mod{
+  background:radial-gradient(130% 90% at 0% 0%,rgba(var(--acr),.26),transparent 58%),radial-gradient(90% 70% at 100% 100%,rgba(var(--acr),.12),transparent 60%),linear-gradient(160deg,rgba(14,30,60,.86),rgba(5,12,26,.82));
+  border:1px solid rgba(var(--acr),.45);
+  box-shadow:0 26px 50px -24px rgba(0,0,0,.9),0 0 38px -14px rgba(var(--acr),.65),inset 0 1px 0 rgba(255,255,255,.12),inset 0 0 40px -22px rgba(var(--acr),.6);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#f2f7ff;--ink:#f2f7ff;--mut:#b7c6dd;--line:rgba(255,255,255,.16)}
+html .se .se__card.cc__mod:hover{border-color:rgba(var(--acr),.8);box-shadow:0 26px 50px -24px rgba(0,0,0,.9),0 0 52px -8px rgba(var(--acr),.9),inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 44px -18px rgba(var(--acr),.8)}
+html .se .se__card .cc__id{color:#cfe0f7}
+html .se .se__card .cc__id span{display:inline-flex;align-items:center;gap:10px}
+html .se .se__card .cc__id span::before{content:'';flex:none;width:28px;height:28px;border-radius:9px;background-color:rgba(var(--acr),.16);background-repeat:no-repeat;background-position:center;background-size:16px;
+  border:1px solid rgba(var(--acr),.5);box-shadow:0 0 14px -3px rgba(var(--acr),.8)}
+html .se .se__card .cc__num{background:linear-gradient(180deg,#fff 10%,var(--ac) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 0 14px rgba(var(--acr),.5))}
+html .se .se__card h3{color:#fff}
+html .se .se__card .ticks li{color:#e6efff}
+html .se .se__card .ticks li::before{color:var(--ac)}
+html .se .se__card .cc__dots{background:radial-gradient(circle,var(--ac) 2px,transparent 2.6px) 0 50%/14px 6px repeat-x;opacity:.9}
+html .se .se__card .cc__led{background:var(--ac);box-shadow:0 0 10px var(--ac)}
+@media (min-width:1001px){
+  .se__cards{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none' fill='none' stroke='%238fd3ff' stroke-width='1.2' vector-effect='non-scaling-stroke'%3E%3Cg stroke-dasharray='1 5' stroke-linecap='round'%3E%3Cpath vector-effect='non-scaling-stroke' d='M27.3 25H36L50 46'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M27.3 71H36L50 46'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M72.7 25H64L50 46'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M72.7 71H64L50 46'/%3E%3C/g%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+  :root:not([data-theme="dark"]) .se__cards{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none' fill='none' stroke='%230c1d3d' stroke-width='1.2' vector-effect='non-scaling-stroke'%3E%3Cg stroke-dasharray='1 5' stroke-linecap='round'%3E%3Cpath vector-effect='non-scaling-stroke' d='M27.3 25H36L50 46'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M27.3 71H36L50 46'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M72.7 25H64L50 46'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M72.7 71H64L50 46'/%3E%3C/g%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+}
+
+/* network graphic removed (canvas, dotted connector lines and stage labels); only the box and the 4 cards stay */
+.se__canvas,.se__steps{display:none!important}
+@media (min-width:1001px){
+  .se__cards,:root:not([data-theme="dark"]) .se__cards{background:none}
+}
+
+/* box around the cards removed (no border, background or rounded frame); cards stay in place */
+.se .se__stage,:root:not([data-theme="dark"]) .se .se__stage{border:0!important;background:none!important;border-radius:0!important;box-shadow:none!important;min-height:560px}
+@media (min-width:1001px){.se__cards{padding:0 0 10px}}
+
+/* ==========================================================================
+   Final layout: clean row of 4 equal cards (2x2 on tablet, 1 column on phone). No box, no network, no overlay.
+   ========================================================================== */
+.se{display:block;max-width:none;width:100%;margin-left:0}
+.se .se__stage{display:none!important}
+.se .se__cards{display:grid;grid-area:auto;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:none;gap:20px;align-items:stretch;padding:8px 0 0;background:none!important;pointer-events:auto;z-index:auto}
+.se .se__card.cc__mod:nth-child(n){grid-column:auto;grid-row:auto;padding:24px 22px 20px;height:100%}
+.se .se__card .cc__num{font-size:clamp(40px,4vw,52px);margin:12px 0 4px}
+.se .se__card h3{font-size:12px;margin-bottom:8px}
+.se .se__card p{font-size:13.5px;line-height:1.55;margin-bottom:12px}
+.se .se__card .ticks{padding-top:12px}
+.se .se__card .ticks li{font-size:13px;line-height:1.45}
+.se .se__card .cc__dots{margin-top:14px}
+@media (max-width:1180px){.se .se__cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.se .se__cards{grid-template-columns:1fr}}
+
+/* ==========================================================================
+   Calm single-colour cards: one brand blue for all four (no multi-colour, no extra glow)
+   ========================================================================== */
+html .se .se__card.cc__mod:nth-child(n){--ac:#5aa9ff;--acr:90,169,255;--cyan:#5aa9ff}
+html .se .se__card.cc__mod{
+  background:linear-gradient(160deg,rgba(18,40,80,.78),rgba(7,15,32,.88));
+  border:1px solid rgba(90,169,255,.3);
+  box-shadow:0 20px 40px -24px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.08)}
+html .se .se__card.cc__mod:hover{border-color:rgba(90,169,255,.55);box-shadow:0 20px 40px -24px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.1)}
+html .se .se__card .cc__id span::before{background-color:rgba(90,169,255,.12);border-color:rgba(90,169,255,.35);box-shadow:none}
+html .se .se__card .cc__num{background:linear-gradient(180deg,#fff 20%,#9fd0ff 100%);-webkit-background-clip:text;background-clip:text;filter:none}
+html .se .se__card h3{color:#fff;text-shadow:none}
+html .se .se__card .ticks{border-top:1px dashed rgba(255,255,255,.16)}
+html .se .se__card .ticks li::before{text-shadow:none}
+html .se .se__card .cc__dots{filter:none;opacity:.8}
+html .se .se__card.cc__mod::before{height:2px;box-shadow:none}
+html .se .se__card:nth-child(1) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235aa9ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 3 8l9 5 9-5-9-5Z'/%3E%3Cpath d='M3 8v8l9 5 9-5V8'/%3E%3Cpath d='M12 13v8'/%3E%3C/svg%3E")}
+html .se .se__card:nth-child(2) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235aa9ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7l1-8Z'/%3E%3C/svg%3E")}
+html .se .se__card:nth-child(3) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235aa9ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h4l3-8 4 16 3-8h4'/%3E%3C/svg%3E")}
+html .se .se__card:nth-child(4) .cc__id span::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235aa9ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E")}
+
+/* ==========================================================================
+   "Engineered for Enterprise Velocity" (4 pillar products): Amdocs "Spotlight" style
+   Big rounded picture, then: bold category + tech chips, large light title, short text. No card box,
+   no tilt/zoom/lift effects. 2 columns on desktop, 1 column on phone.
+   ========================================================================== */
+#pillars .pillars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:64px 44px;max-width:1040px;margin:0 auto}
+#pillars .pillars .pillar{display:flex;flex-direction:column;gap:0;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;scale:none!important;translate:none!important;transform:none!important;opacity:1!important;animation:none!important;z-index:auto!important}
+#pillars .pillars .pillar::before,#pillars .pillars .pillar::after{display:none!important}
+#pillars .pillars .pillar__img{order:0;aspect-ratio:16/10;border-radius:10px;margin:0 0 22px!important;transform:none!important;box-shadow:none!important;overflow:hidden}
+#pillars .pillars .pillar__img img{width:100%;height:100%;object-fit:cover;scale:1!important;translate:none!important;transform:none!important}
+#pillars .pillars .pillar__img::before,#pillars .pillars .pillar__img::after,#pillars .pillars .pillar__badge{display:none!important}
+#pillars .pillars .pillar__tags{order:1;display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding:0}
+#pillars .pillars .pillar__tags::before{font:700 14px/1 'Inter',sans-serif;color:var(--ink);margin-right:6px;padding-right:16px;
+  background:radial-gradient(circle,#8a93a3 2px,transparent 2.6px) right center/6px 6px no-repeat}
+#pillars .pillars .pillar:nth-child(1) .pillar__tags::before{content:'SaaS'}
+#pillars .pillars .pillar:nth-child(2) .pillar__tags::before{content:'AI'}
+#pillars .pillars .pillar:nth-child(3) .pillar__tags::before{content:'Vertical'}
+#pillars .pillars .pillar:nth-child(4) .pillar__tags::before{content:'Web'}
+#pillars .pillars .pillar__tags span{padding:8px 14px;border-radius:4px;background:rgba(90,169,255,.16);color:#8fc8ff;font-size:13px;font-weight:700;line-height:1.2}
+:root:not([data-theme="dark"]) #pillars .pillars .pillar__tags span{background:rgba(8,121,237,.12);color:#0a4fb5}
+#pillars .pillars .pillar h3{order:2;margin:0 0 12px;font-size:clamp(22px,2.3vw,30px);font-weight:400;line-height:1.3;letter-spacing:-.01em}
+#pillars .pillars .pillar__hit{opacity:1;color:var(--ink)}
+#pillars .pillars .pillar:hover .pillar__hit{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
+#pillars .pillars .pillar p{order:3;margin:0 0 14px;font-size:15px;line-height:1.6;color:var(--mut)}
+#pillars .pillars .pillar .ticks{order:4;margin:0;padding:0;border:0;font-size:13.5px}
+@media (max-width:760px){#pillars .pillars{grid-template-columns:1fr;gap:48px}}
+#pillars .pillars .pillar>:not(.pillar__img){margin-left:0!important;margin-right:0!important}
+
+/* pillar products: a little smaller */
+#pillars .pillars{max-width:880px;gap:52px 36px}
+#pillars .pillars .pillar__img{margin-bottom:18px!important}
+#pillars .pillars .pillar__tags{margin-bottom:14px}
+#pillars .pillars .pillar__tags span{padding:7px 12px;font-size:12px}
+#pillars .pillars .pillar h3{font-size:clamp(20px,1.9vw,25px);margin-bottom:10px}
+#pillars .pillars .pillar p{font-size:14px;line-height:1.55}
+#pillars .pillars .pillar .ticks{font-size:13px}
+
+/* pillar products: border appears when the cursor is on a product (layout does not move) */
+#pillars .pillars .pillar{padding:12px!important;margin:-13px!important;border:1px solid transparent!important;border-radius:16px!important;
+  transition:border-color .3s ease,background-color .3s ease,box-shadow .3s ease!important}
+@media (hover:hover){
+  #pillars .pillars .pillar:hover,#pillars .pillars .pillar:focus-within{border-color:rgba(90,169,255,.75)!important;background:rgba(90,169,255,.06)!important;
+    box-shadow:0 0 0 1px rgba(90,169,255,.18),0 18px 40px -22px rgba(90,169,255,.5)!important}
+  :root:not([data-theme="dark"]) #pillars .pillars .pillar:hover,:root:not([data-theme="dark"]) #pillars .pillars .pillar:focus-within{border-color:rgba(8,121,237,.7)!important;background:rgba(8,121,237,.05)!important}
+}
+
+/* pillar products: pop-up effect on hover (rises and grows a little, stronger glow); settles back when the cursor leaves */
+#pillars .pillars .pillar{transition:border-color .3s ease,background-color .3s ease,box-shadow .35s ease,transform .35s cubic-bezier(.2,.7,.2,1)!important}
+@media (hover:hover) and (min-width:761px){
+  #pillars .pillars .pillar:hover,#pillars .pillars .pillar:focus-within{transform:translateY(-4px) scale(1.015)!important;z-index:5!important;
+    background:rgba(8,18,38,.88)!important;-webkit-backdrop-filter:blur(8px)!important;backdrop-filter:blur(8px)!important;
+    box-shadow:0 0 0 1px rgba(90,169,255,.3),0 0 30px -6px rgba(90,169,255,.55),0 30px 50px -20px rgba(0,0,0,.75)!important}
+  :root:not([data-theme="dark"]) #pillars .pillars .pillar:hover,:root:not([data-theme="dark"]) #pillars .pillars .pillar:focus-within{background:rgba(255,255,255,.92)!important;
+    box-shadow:0 0 0 1px rgba(8,121,237,.3),0 0 28px -8px rgba(8,121,237,.45),0 30px 50px -22px rgba(10,40,100,.5)!important}
+}
+
+
+/* Patil Ujjwal case study: show the whole banner image (no zoom, no sideways slide, no cropping).
+   The frame is 16:10 and this image is 16:10, so it fills the frame exactly. The tilt and glow effects still work. */
+.frame img[src*="case-patil-ujjwal"]{scale:1!important;translate:none!important;transform:none!important;object-fit:contain!important;object-position:center!important}
+.frame:hover img[src*="case-patil-ujjwal"],.frame.is-hot img[src*="case-patil-ujjwal"],.frame.is-focus img[src*="case-patil-ujjwal"]{scale:1!important;translate:none!important;transform:none!important}
+
+/* ==========================================================================
+   Phone polish + light-mode fix
+   - light mode: the Pillars and Process sections sit on a dark band, so the product chips and the hover card
+     keep the dark-style colours (before, the chips were dark blue on dark and the hover card white with white text)
+   - phone (900px and below): flat, calm pictures (no tilt, zoom or sideways drift), case-study picture first then text,
+     metric numbers in a neat 3-column row, tidy footer
+   ========================================================================== */
+:root:not([data-theme="dark"]) #pillars .pillars .pillar__tags span{background:rgba(255,255,255,.12);color:#cfe6ff}
+:root:not([data-theme="dark"]) #pillars .pillars .pillar{--pb:#5aa9ff}
+@media (hover:hover){
+  :root:not([data-theme="dark"]) #pillars .pillars .pillar:hover,:root:not([data-theme="dark"]) #pillars .pillars .pillar:focus-within{
+    border-color:rgba(90,169,255,.75)!important;background:rgba(8,18,38,.88)!important;
+    box-shadow:0 0 0 1px rgba(90,169,255,.3),0 0 30px -6px rgba(90,169,255,.55),0 30px 50px -20px rgba(0,0,0,.75)!important}
+}
+@media (max-width:900px){
+  .frame,.frame.is-focus,.frame.is-hot,.case__media .frame{transform:none!important;scale:1!important;translate:none!important}
+  .frame img,.frame:hover img{scale:1!important;translate:none!important;transform:none!important}
+  .case__body{translate:none!important}
+  #cases .case,#cases .case:nth-of-type(even){padding:36px 0;gap:22px}
+  #cases .case__media,#cases .case:nth-of-type(even) .case__media{order:-1}
+  #cases .frame{border-radius:14px;box-shadow:0 18px 40px -22px rgba(10,30,70,.55)}
+  #cases .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
+  #cases .stats strong{font-size:17px;line-height:1.2}
+  #cases .stats span{display:block;margin-top:2px;font-size:11.5px;line-height:1.3}
+  #cases .case h3{font-size:clamp(24px,7vw,30px);line-height:1.2}
+  #cases .case__meta{margin-bottom:12px}
+}
+@media (max-width:640px){
+  .footer{padding:48px 0 24px}
+  .footer__grid{gap:22px 16px}
+  .footer__grid a{min-height:36px}
+  .footer__grid>:nth-child(4){margin-top:0}
+  .footer__grid>:nth-child(5){margin-top:0;display:flex;flex-wrap:wrap;gap:0 20px}
+  .footer__grid>:nth-child(5) h4{flex:0 0 100%}
+  .footer__grid h4{margin-bottom:8px}
+  .footer__brand p{max-width:none}
+}

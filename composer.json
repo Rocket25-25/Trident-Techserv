@@ -1,0 +1,6 @@
+{
+    "name": "trident-techserv/contact-form",
+    "require": {
+        "phpmailer/phpmailer": "^7.1"
+    }
+}
