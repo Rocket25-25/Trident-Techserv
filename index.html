@@ -317,7 +317,7 @@
     <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close dialog"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal__intro"><p class="kicker"><span class="dot"></span>INITIATE ENGAGEMENT</p><h3 id="intakeTitle">Request Discovery Call</h3>
       <p class="modal__sub">Direct handover to our principal engineering pod. We respond within 12 hours.</p></div>
-    <form id="intakeForm" method="post" action="/api/contact" novalidate>
+    <form id="intakeForm" method="post" action="contact-handler.php" novalidate>
       <input type="hidden" name="csrf_token" value="">
       <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label for="in-website">Leave this field blank</label><input type="text" id="in-website" name="website_url" tabindex="-1" autocomplete="off"></div>
       <div class="field"><label for="clientName">Your Name</label><input id="clientName" name="name" type="text" autocomplete="name" placeholder="Aryan Goyal" required><small id="clientName-err" role="alert"></small></div>
