@@ -1,0 +1,9 @@
+{
+  "name": "trident-techserv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trident Techserv website - Netlify Function dependencies",
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

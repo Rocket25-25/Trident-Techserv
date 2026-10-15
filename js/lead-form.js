@@ -1,7 +1,11 @@
 /* Shared lead-form helper used by the home-page dialog (modal.js) and the contact page (contact.js).
    Validates fields, fetches the CSRF token and posts to contact-handler.php, which emails the enquiry. */
 window.TridentLead = (function () {
-  var ENDPOINT = 'contact-handler.php', TOKEN_URL = 'csrf-token.php';
+  // Local (XAMPP / php -S / Live Server on localhost or LAN) -> PHP backend.
+  // Deployed (Vercel etc., which cannot run PHP) -> Vercel Function that reads its settings from environment variables.
+  var IS_LOCAL = location.protocol === 'file:' || /^(localhost|127\.|192\.168\.|10\.|\[::1\])/.test(location.hostname);
+  var ENDPOINT = IS_LOCAL ? 'contact-handler.php' : '/api/contact';
+  var TOKEN_URL = 'csrf-token.php';
   var MAIL = 'headtrident.techserv@gmail.com';
 
   // field id -> [validator, message]
@@ -21,6 +25,7 @@ window.TridentLead = (function () {
   }
 
   function loadToken(form) {
+    if (!IS_LOCAL) return Promise.resolve(''); // the serverless endpoint has no session, so no CSRF token is needed
     return fetch(TOKEN_URL, { credentials: 'same-origin', cache: 'no-store' })
       .then(function (r) { if (!r.ok) throw new Error('token'); return r.json(); })
       .then(function (d) { form.elements.csrf_token.value = d.csrf_token || ''; return d.csrf_token; });
@@ -55,7 +60,7 @@ window.TridentLead = (function () {
   // Post the form. Retries once with a fresh token if the session/token expired (HTTP 419).
   function post(form, retry) {
     return Promise.resolve(form.elements.csrf_token.value || loadToken(form)).then(function () {
-      return fetch(ENDPOINT, { method: 'POST', credentials: 'same-origin', body: new FormData(form) });
+      return fetch(ENDPOINT, { method: 'POST', credentials: 'same-origin', body: IS_LOCAL ? new FormData(form) : new URLSearchParams(new FormData(form)) });
     }).then(function (res) {
       return res.json().catch(function () { return { success: false, message: '' }; }).then(function (data) {
         if (res.status === 419 && !retry) { form.elements.csrf_token.value = ''; return post(form, true); }
