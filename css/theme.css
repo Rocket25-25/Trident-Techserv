@@ -23,10 +23,8 @@
   --card-shadow-hover:0 2px 4px rgba(17,24,39,.10),0 30px 56px -18px rgba(17,24,39,.40);
   --link-deep:#082f73;
 }
-/* Header logo: transparent, no plate. Footer is dark navy, so it keeps a white plate there. */
-[data-theme="light"] .footer__brand img{background:#fff;border-radius:8px;padding:6px 12px}
+/* Header and footer logo: transparent, no white plate (footer logo looks the same as in dark mode). */
 [data-theme="light"] .header__logo img{height:40px}
-[data-theme="light"] .footer__brand img{box-sizing:content-box;height:36px}
 
 /* Hero (light) */
 [data-theme="light"] .hero{--shade:243,245,248;
